@@ -18,10 +18,22 @@ const getAllexpenses = (req, res) => {
 		  if (expenses.length === 0) throw new Error();
 		  res.json(expenses)
 		})
-    	.catch(err => res.status(422).json(err));
+    .catch(err => res.status(422).json(err));
 };
+
+const expensesAggregatedBy = (req, res) => {
+  Expense
+    .aggregate([
+      { $group: { _id: '$category', total: { $sum: '$ammount' } } },
+      { $sort: { total: -1 } },
+    ])
+    .exec()
+    .then(value => res.json(value))
+    .catch(err => res.status(500).json(err));
+}
 
 module.exports = {
   expenseCreate,
-  getAllexpenses
+  getAllexpenses,
+  expensesAggregatedBy
 };
